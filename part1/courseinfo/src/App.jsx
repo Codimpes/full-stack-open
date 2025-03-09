@@ -6,17 +6,21 @@ const Header = (props) => {
   );
 };
 
+const Part = (props) => {
+  return (
+    <p>
+      {props.name} {props.amount}
+    </p>
+  );
+};
+
 const Content = (props) => {
   return (
-    <>
+    <div>
       {props.content.map((part) => {
-        return (
-          <p>
-            {part.name} {part.amount}
-          </p>
-        );
+        return <Part name={part.name} amount={part.amount} />;
       })}
-    </>
+    </div>
   );
 };
 
