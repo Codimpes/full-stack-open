@@ -1,8 +1,10 @@
 import { useState } from "react";
 
-const Total = (props) => {
+const StatisticLine = (props) => {
   return (
-  <p>{props.name} {props.total}</p>
+    <p>
+      {props.name} {props.total}
+    </p>
   );
 };
 
@@ -17,12 +19,16 @@ const Statistics = (props) => {
         <h2>{props.comments.titleSectionStatistics}</h2>
         {props.comments.typeComments.map((comment, index) => {
           return (
-            <Total key={index} name={comment.name} total={comment.total} />
+            <StatisticLine
+              key={index}
+              name={comment.name}
+              total={comment.total}
+            />
           );
         })}
-        <Total name="total" total={props.comments.total} />
-        <Total name="average" total={props.comments.average} />
-        <Total name="positive" total={props.comments.positive} />
+        <StatisticLine name="total" total={props.comments.total} />
+        <StatisticLine name="average" total={props.comments.average} />
+        <StatisticLine name="positive" total={props.comments.positive} />
       </div>
     );
   }
