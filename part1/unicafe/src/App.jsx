@@ -11,10 +11,11 @@ const Statistics = (props) => {
     <div>
       <h2>{props.comments.titleSectionStatistics}</h2>
       {props.comments.typeComments.map((comment, index) => {
-        return (
-          <Total key={index} name={comment.name} total={comment.total} />
-        );
+        return <Total key={index} name={comment.name} total={comment.total} />;
       })}
+      <Total name="total" total={props.comments.total} />
+      <Total name="average" total={props.comments.average} />
+      <Total name="positive" total={props.comments.positive} />
     </div>
   );
 };
@@ -39,9 +40,16 @@ const FeedBack = (props) => {
 };
 
 const App = () => {
+
   const [good, setGood] = useState(0);
   const [neutral, setNeutral] = useState(0);
   const [bad, setBad] = useState(0);
+  const total = good + neutral + bad;
+
+  const average = total ? (good - bad) / total : 0;
+
+  const positive = total ? (good * 100) / total : 0;
+
   const sectionComments = {
     titleSectionButtons: "give feed back",
     titleSectionStatistics: "statistics",
@@ -62,6 +70,9 @@ const App = () => {
         handleClick: () => setBad(bad + 1),
       },
     ],
+    total: total,
+    average: average,
+    positive: positive,
   };
   return (
   <div>
