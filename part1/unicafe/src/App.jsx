@@ -2,9 +2,10 @@ import { useState } from "react";
 
 const StatisticLine = (props) => {
   return (
-    <p>
-      {props.name} {props.total}
-    </p>
+    <tr>
+      <td>{props.name}</td>
+      <td>{props.total}</td>
+    </tr>
   );
 };
 
@@ -17,18 +18,22 @@ const Statistics = (props) => {
     return (
       <div>
         <h2>{props.comments.titleSectionStatistics}</h2>
-        {props.comments.typeComments.map((comment, index) => {
-          return (
-            <StatisticLine
-              key={index}
-              name={comment.name}
-              total={comment.total}
-            />
-          );
-        })}
-        <StatisticLine name="total" total={props.comments.total} />
-        <StatisticLine name="average" total={props.comments.average} />
-        <StatisticLine name="positive" total={props.comments.positive} />
+        <table>
+          <tbody>
+            {props.comments.typeComments.map((comment, index) => {
+              return (
+                <StatisticLine
+                  key={index}
+                  name={comment.name}
+                  total={comment.total}
+                />
+              );
+            })}
+            <StatisticLine name="total" total={props.comments.total} />
+            <StatisticLine name="average" total={props.comments.average} />
+            <StatisticLine name="positive" total={props.comments.positive} />
+          </tbody>
+        </table>
       </div>
     );
   }
