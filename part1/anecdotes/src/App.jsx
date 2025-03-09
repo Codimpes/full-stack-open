@@ -29,13 +29,25 @@ const App = () => {
     setVotes(copyVotes);
   };
 
+  const { max, index } = votes.reduce(
+    (acc, num, i) => (num > acc.max ? { max: num, index: i } : acc),
+    { max: votes[0], index: 0 }
+  );
+
   return (
     <div>
+      <h2>Anecdote of the day</h2>
       <p>{anecdotes[selected]}</p>
-      <p>Votes: {votes[selected]}</p>
-
+      <p>has {votes[selected]} votes</p>
       <Button handleClick={handleVote} name="vote" />
       <Button handleClick={handleNextAnecdote} name="next anecdote" />
+      {max > 0 && (
+        <>
+          <h2>Anecdote with most votes</h2>
+          <p>{anecdotes[index]}</p>
+          <p>has {votes[index]} votes</p>
+        </>
+      )}
     </div>
   );
 };
