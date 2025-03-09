@@ -7,17 +7,33 @@ const Total = (props) => {
 };
 
 const Statistics = (props) => {
-  return (
-    <div>
-      <h2>{props.comments.titleSectionStatistics}</h2>
-      {props.comments.typeComments.map((comment, index) => {
-        return <Total key={index} name={comment.name} total={comment.total} />;
-      })}
-      <Total name="total" total={props.comments.total} />
-      <Total name="average" total={props.comments.average} />
-      <Total name="positive" total={props.comments.positive} />
-    </div>
+  const totalSum = props.comments.typeComments.reduce(
+    (acc, comment) => acc + comment.total,
+    0
   );
+  if (totalSum) {
+    return (
+      <div>
+        <h2>{props.comments.titleSectionStatistics}</h2>
+        {props.comments.typeComments.map((comment, index) => {
+          return (
+            <Total key={index} name={comment.name} total={comment.total} />
+          );
+        })}
+        <Total name="total" total={props.comments.total} />
+        <Total name="average" total={props.comments.average} />
+        <Total name="positive" total={props.comments.positive} />
+      </div>
+    );
+  }
+  else {
+    return (
+      <div>
+        <h2>{props.comments.titleSectionStatistics}</h2>
+        <h5>No feedback given</h5>
+      </div>
+    );
+  }
 };
 
 const Button = (props) => {
