@@ -8,6 +8,11 @@ const App = () => {
   };
 const addPerson = (event) => {
   event.preventDefault();
+  const existingNames = new Set(persons.map((person) => person.name));
+  if (existingNames.has(newName)) {
+    alert(`${newName} is already added to phonebook`);
+    return;
+  }
   const existingIds = new Set(persons.map((person) => person.id));
   let id = 1;
   while (existingIds.has(id)) {
