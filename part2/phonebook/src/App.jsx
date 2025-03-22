@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import personService from "./services/persons";
 
 const Filter = (props) => (
   <input value={props.value} onChange={props.handleFilterChange} />
@@ -12,26 +12,30 @@ const PersonForm = (props) => {
         name: <input value={props.newName} onChange={props.handleNameChange} />
       </div>
       <div>
-        number: <input value={props.newNumber} onChange={props.handleNumberChange} />
+        number:{" "}
+        <input value={props.newNumber} onChange={props.handleNumberChange} />
       </div>
       <div>
         <button type="submit">add</button>
       </div>
     </form>
-  )
-}
+  );
+};
 
 const Persons = (props) => {
   return (
     <>
       {props.personsShow.map((person) => (
-        <p key={person.id}>
-          {person.name} {person.number}
-        </p>
+        <div key={person.id}>
+          <p>
+            {person.name} {person.number}
+          </p>
+          <button onClick={() => props.handleDelete(person.id)}>Delete</button>
+        </div>
       ))}
     </>
   );
-}
+};
 
 const App = () => {
   const [persons, setPersons] = useState([]);
@@ -40,40 +44,84 @@ const App = () => {
   const [filter, setFilter] = useState("");
 
   useEffect(() => {
-    axios
-      .get('http://localhost:3001/persons')
-      .then(response => {
-        setPersons(response.data)
+    personService
+      .getAllPersons()
+      .then((initialPersons) => {
+        setPersons(initialPersons);
       })
-  },[])
+      .catch((error) => {
+        alert(`${error}. Error get all persons from server`);
+      });
+  }, []);
+
+  const handleDelete = (id) => {
+    const confirmDelete = window.confirm(
+      `Delete ${persons.find((person) => person.id === id)?.name}`
+    );
+    if (!confirmDelete) return;
+    personService
+      .deletePerson(id)
+      .then((deletePerson) =>
+        setPersons(persons.filter((person) => person.id != id))
+      )
+      .catch((error) => {
+        alert(`${error}. Error delete person in the server.`);
+      });
+  };
 
   const addPerson = (event) => {
     event.preventDefault();
     const existingNames = new Set(persons.map((person) => person.name));
-    if (existingNames.has(newName)) {
-      alert(`${newName} is already added to phonebook`);
-      return;
-    }
     const existingPhones = new Set(persons.map((person) => person.number));
+    if (existingNames.has(newName)) {
+      const person = persons.find((person) => person.name === newName);
+      if (person && person?.number !== newNumber) {
+        const confirmUpdate = window.confirm(
+          `${newName} is already added to phonebook, replace the old number with a new one?`
+        );
+        if (!confirmUpdate) return;
+        const updatedPerson = { ...person, number: newNumber };
+        personService
+          .updatePerson(updatedPerson.id, updatedPerson)
+          .then((returnedPerson) =>
+            setPersons(
+              persons
+                .filter((person) => person.id !== returnedPerson.id)
+                .concat(returnedPerson)
+            )
+          .catch((error) => {
+                alert(`${error}. Error update person in the server.`);
+              })
+          );
+      }
+      else {
+        alert(`${newName} is already added to phonebook`);
+        return;
+      }
+    }
     if (existingPhones.has(newNumber)) {
-      const namePerson = persons.find((person) => person.number === newNumber)?.name
+      const namePerson = persons.find(
+        (person) => person.number === newNumber
+      )?.name;
       alert(`${namePerson} is already has this number.`);
       return;
     }
-    const existingIds = new Set(persons.map((person) => person.id));
-    let id = 1;
-    while (existingIds.has(id)) {
-      id++;
-    }
-    const personItem = { name: newName, id, number: newNumber };
-    setPersons(persons.concat(personItem));
+    const personItem = { name: newName, number: newNumber };
+    personService
+      .createPerson(personItem)
+      .then((createPerson) => setPersons(persons.concat(createPerson)))
+      .catch((error) => {
+        alert(`${error}. Error create person in the server.`);
+      });
     setNewName("");
     setNewNumber("");
   };
 
   const personsShow = filter
-  ? persons.filter((person) => person.name.toLowerCase().includes(filter.toLowerCase()))
-  : persons
+    ? persons.filter((person) =>
+        person.name.toLowerCase().includes(filter.toLowerCase())
+      )
+    : persons;
 
   return (
     <div>
@@ -91,7 +139,7 @@ const App = () => {
         handleNumberChange={(event) => setNewNumber(event.target.value)}
       />
       <h2>Numbers</h2>
-      <Persons personsShow={personsShow} />
+      <Persons personsShow={personsShow} handleDelete={handleDelete} />
     </div>
   );
 };
