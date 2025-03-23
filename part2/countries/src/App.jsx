@@ -20,16 +20,17 @@ const Notification = ({ message, onClose }) => {
 
 const Filter = (props) => (
   <>
-    find countries <input value={props.value} onChange={props.handleFilterChange} />
+    find countries{" "}
+    <input value={props.value} onChange={props.handleFilterChange} />
   </>
 );
 
 const Countries = (props) => {
   const [selectedCountry, setSelectedCountry] = useState(null);
   if (props.countries.length > 10) {
-    return <p>Too many matches, specify another filter</p>
+    return <p>Too many matches, specify another filter</p>;
   }
-  if(props.countries.length <= 10 && props.countries.length > 1) {
+  if (props.countries.length <= 10 && props.countries.length > 1) {
     return (
       <div>
         {props.countries.map((country) => {
@@ -54,7 +55,7 @@ const Countries = (props) => {
           );
         })}
       </div>
-    )
+    );
   }
   if (props.countries.length === 1) {
     return (
@@ -63,9 +64,25 @@ const Countries = (props) => {
       </div>
     );
   }
-}
+};
 
 const Country = ({ country }) => {
+  const [weather, setWeather] = useState({});
+  useEffect(() => {
+    countriesService
+      .getWeather(country.capital[0])
+      .then((weatherResponse) => {
+        setWeather({
+          temperature: weatherResponse.current.temp_c,
+          wind: weatherResponse.current.wind_mph,
+          icon: weatherResponse.current.condition.icon,
+          iconAlt: weatherResponse.current.condition.text,
+        });
+      })
+      .catch((error) => {
+        console.log(`Error al obtener actualización del clima, ${error}`);
+      });
+  }, []);
   const formatCapital = (capitals) =>
     capitals.length === 1 ? capitals[0] : capitals.join(", ");
   const languages = Object.values(country.languages);
@@ -81,13 +98,20 @@ const Country = ({ country }) => {
         ))}
       </ul>
       <img src={country.flags.png} alt={country.flags.alt} />
+      {weather && (
+        <>
+          <h3>Weather in {country.capital[0]}</h3>
+          <p>Temperature {weather.temperature} Celsius</p>
+          <img src={weather.icon} alt={weather.iconAlt} />
+          <p>Wind ${weather.wind} m/s</p>
+        </>
+      )}
     </>
   );
-}
+};
 
 function App() {
-
-  const [ countries, setCountries ] = useState([]);
+  const [countries, setCountries] = useState([]);
   const [message, setMessage] = useState({ text: "", className: "" });
   const [showNotification, setShowNotification] = useState(false);
   const [filter, setFilter] = useState("");
